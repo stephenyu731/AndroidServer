@@ -147,6 +147,7 @@ class RoutesHandler {
             case ServerHelper.METHOD.POST:
             case ServerHelper.METHOD.PUT:
             case ServerHelper.METHOD.DELETE:
+            case ServerHelper.METHOD.OPTIONS:
                 return true;
             default:
                 return false;
