@@ -12,8 +12,14 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Vector;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
 
 class ServerRunnable implements Runnable , RequestCallBack {
 
@@ -29,7 +35,46 @@ class ServerRunnable implements Runnable , RequestCallBack {
     // Clients Threads ..
     private final Vector<ServerRequestThread> serverRequestThreads;
 
+
+    ServerRunnable(Context context, int port, List<Route> routeList, ServerCallBack serverCallBack, KeyManagerFactory keyManagerFactory) throws IOException {
+        Log.d(TAG, "init https server");
+        this.context = context;
+        this.serverCallBack = serverCallBack;
+
+        this.serverRequestThreads = new Vector<>();
+
+        try {
+            // 初始化 SSLContext 使用 KeyManagerFactory
+            SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+            sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
+            sslContext.init(keyManagerFactory.getKeyManagers(), null, new SecureRandom());
+
+
+            // 创建 SSLServerSocketFactory
+            SSLServerSocketFactory sslServerSocketFactory = sslContext.getServerSocketFactory();
+            // 创建 SSLServerSocket 并绑定到指定的 IP 地址和端口
+
+            SSLServerSocket serverSocket = (SSLServerSocket)  sslServerSocketFactory.createServerSocket(port);
+
+
+            serverSocket.setEnabledProtocols(serverSocket.getSupportedProtocols());
+            serverSocket.setEnabledCipherSuites(serverSocket.getSupportedCipherSuites());
+            serverSocket.setNeedClientAuth(false);
+            serverSocket.setWantClientAuth(false);
+            serverSocket.setUseClientMode(false);
+
+            this.serverSocket = serverSocket;
+
+        } catch (Exception e) {
+            Log.d(TAG, "init https server fail");
+            e.printStackTrace();
+        }
+
+        RoutesHandler.getInstance().applyRoutes(routeList);
+    }
+
     ServerRunnable(Context context,int port, List<Route> routeList, ServerCallBack serverCallBack) throws IOException {
+        Log.d(TAG, "init https server");
         this.context = context;
         this.serverCallBack = serverCallBack;
 

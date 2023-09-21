@@ -9,6 +9,8 @@ import com.androthink.server.model.Route;
 import java.io.IOException;
 import java.util.List;
 
+import javax.net.ssl.KeyManagerFactory;
+
 public class ServerUtils implements ServerCallBack {
 
     private static ServerUtils serverUtils = null;
@@ -20,6 +22,8 @@ public class ServerUtils implements ServerCallBack {
     private int port;
     private List<Route> routeList;
     private ServerCallBack callBack;
+
+    private KeyManagerFactory keyManagerFactory;
 
     public static ServerUtils getInstance(List<Route> routeList,int port){
         if(serverUtils == null)
@@ -51,7 +55,11 @@ public class ServerUtils implements ServerCallBack {
         }
 
         try {
-            streamer = new ServerRunnable(context,port, routeList, ServerUtils.this);
+            if (keyManagerFactory != null) {
+                streamer = new ServerRunnable(context, port, routeList, ServerUtils.this, keyManagerFactory);
+            } else {
+                streamer = new ServerRunnable(context, port, routeList, ServerUtils.this);
+            }
             streamerThread = new Thread(streamer);
 
             streamerThread.start();
