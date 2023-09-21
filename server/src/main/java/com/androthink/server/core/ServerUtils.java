@@ -7,6 +7,10 @@ import com.androthink.server.callback.ServerCallBack;
 import com.androthink.server.model.Route;
 
 import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.util.List;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -46,6 +50,13 @@ public class ServerUtils implements ServerCallBack {
         this.callBack = callBack;
         this.port = port;
     }
+
+    public void setSSL(KeyStore keystore, char[] keystorePassword) throws UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException {
+        // 创建 KeyManagerFactory 使用密钥库
+        keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keyManagerFactory.init(keystore, keystorePassword);
+    }
+
 
     public void start(Context context) {
 
