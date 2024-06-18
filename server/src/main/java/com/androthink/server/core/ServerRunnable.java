@@ -46,7 +46,6 @@ class ServerRunnable implements Runnable , RequestCallBack {
         try {
             // 初始化 SSLContext 使用 KeyManagerFactory
             SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
-            sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
             sslContext.init(keyManagerFactory.getKeyManagers(), null, new SecureRandom());
 
 
